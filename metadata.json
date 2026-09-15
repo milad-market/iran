@@ -1,0 +1,6 @@
+{
+  "name": "Imperial Heritage - Iran",
+  "description": "An illuminated digital archive and interactive exploration of Persian history, dynasties, monuments, and cultural heritage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
