@@ -1,13 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Theme } from '../types';
 
 interface CinematicVideoCanvasProps {
   ambientTheme?: 'lapis' | 'amber' | 'turquoise' | 'amethyst';
   isPlaying?: boolean;
+  theme?: Theme;
 }
 
 export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
   ambientTheme = 'lapis',
   isPlaying = true,
+  theme = 'dark',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef<{ x: number; y: number; targetX: number; targetY: number }>({
@@ -24,7 +27,7 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
     if (!ctx) return;
 
     let animId: number;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // Performance clamp for butter smoothness
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // Performance clamp
 
     let width = (canvas.width = window.innerWidth * dpr);
     let height = (canvas.height = window.innerHeight * dpr);
@@ -41,13 +44,32 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
     const handleMouseMove = (e: MouseEvent) => {
       const normX = (e.clientX / window.innerWidth) * 2 - 1;
       const normY = (e.clientY / window.innerHeight) * 2 - 1;
-      mouseRef.current.targetX = normX * 30 * dpr;
-      mouseRef.current.targetY = normY * 30 * dpr;
+      mouseRef.current.targetX = normX * 25 * dpr;
+      mouseRef.current.targetY = normY * 25 * dpr;
     };
 
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
 
-    // Particle definition
+    const isLight = theme === 'light';
+
+    // Theme Palettes - Pure Obsidian Deep Black in dark mode, Crisp Pure White/Ivory in light mode
+    const themeGradientsDark = {
+      lapis: { c1: '#0c0c12', c2: '#171722', c3: '#050507' },
+      amber: { c1: '#140e06', c2: '#22160a', c3: '#070502' },
+      turquoise: { c1: '#081214', c2: '#101e20', c3: '#040708' },
+      amethyst: { c1: '#120a17', c2: '#1d1024', c3: '#060308' },
+    };
+
+    const themeGradientsLight = {
+      lapis: { c1: '#f9f9fb', c2: '#ffffff', c3: '#f1f1f4' },
+      amber: { c1: '#faf8f5', c2: '#ffffff', c3: '#f5efe6' },
+      turquoise: { c1: '#f5f9f9', c2: '#ffffff', c3: '#eef6f5' },
+      amethyst: { c1: '#faf6fc', c2: '#ffffff', c3: '#f4edf8' },
+    };
+
+    const darkStarColors = ['#ffd68a', '#e9c176', '#f4f4f5', '#ffffff', '#c5a059'];
+    const lightStarColors = ['#b8860b', '#c5a059', '#a27b32', '#6b5420', '#d4af37'];
+
     interface Star {
       x: number;
       y: number;
@@ -69,48 +91,42 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
       color: string;
     }
 
-    // Initialize stars
+    // Initialize stars / motes
     const stars: Star[] = [];
-    const starCount = 90;
-    const starColors = ['#ffd68a', '#e9c176', '#acc7ff', '#ffffff', '#c5a059'];
+    const starCount = isLight ? 65 : 90;
+    const starColors = isLight ? lightStarColors : darkStarColors;
 
     for (let i = 0; i < starCount; i++) {
       stars.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: (Math.random() * 1.5 + 0.5) * dpr,
-        baseAlpha: Math.random() * 0.7 + 0.2,
-        pulseSpeed: Math.random() * 0.03 + 0.01,
+        size: (Math.random() * (isLight ? 1.6 : 1.8) + 0.6) * dpr,
+        baseAlpha: Math.random() * (isLight ? 0.35 : 0.6) + 0.1,
+        pulseSpeed: (Math.random() * 0.02 + 0.008),
         phase: Math.random() * Math.PI * 2,
         color: starColors[Math.floor(Math.random() * starColors.length)],
       });
     }
 
-    // Initialize golden floating embers (اخگرهای زرین)
+    // Initialize embers
     const embers: Ember[] = [];
-    const emberCount = 35;
-    const emberColors = ['#e9c176', '#c5a059', '#ffd68a', '#c85a32'];
+    const emberCount = isLight ? 20 : 35;
+    const emberColors = isLight
+      ? ['#b8860b', '#c5a059', '#967431', '#d4af37']
+      : ['#ffd68a', '#e9c176', '#ffb03a', '#c5a059'];
 
     for (let i = 0; i < emberCount; i++) {
       embers.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.6 * dpr,
-        vy: -(Math.random() * 0.8 + 0.3) * dpr,
-        size: (Math.random() * 2.5 + 1.2) * dpr,
-        alpha: Math.random() * 0.8 + 0.2,
-        fadeSpeed: Math.random() * 0.01 + 0.005,
+        vx: (Math.random() - 0.5) * 0.4 * dpr,
+        vy: -(Math.random() * 0.7 + 0.3) * dpr,
+        size: (Math.random() * 2 + 1) * dpr,
+        alpha: Math.random() * (isLight ? 0.4 : 0.8) + 0.15,
+        fadeSpeed: Math.random() * 0.004 + 0.001,
         color: emberColors[Math.floor(Math.random() * emberColors.length)],
       });
     }
-
-    // Background themes palette
-    const themeGradients = {
-      lapis: { c1: '#04132b', c2: '#081e42', c3: '#020b1a' },
-      amber: { c1: '#1c1208', c2: '#2a1a0c', c3: '#090502' },
-      turquoise: { c1: '#042426', c2: '#083b3d', c3: '#021213' },
-      amethyst: { c1: '#1e072b', c2: '#2c0d3e', c3: '#0a020f' },
-    };
 
     let frame = 0;
 
@@ -121,7 +137,8 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
       mouseRef.current.x += (mouseRef.current.targetX - mouseRef.current.x) * 0.05;
       mouseRef.current.y += (mouseRef.current.targetY - mouseRef.current.y) * 0.05;
 
-      const palette = themeGradients[ambientTheme] || themeGradients.lapis;
+      const paletteGroup = isLight ? themeGradientsLight : themeGradientsDark;
+      const palette = paletteGroup[ambientTheme] || paletteGroup.lapis;
 
       // 1. Draw Deep Atmospheric Gradient
       const grad = ctx.createRadialGradient(
@@ -139,19 +156,19 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
-      // 2. Subtle Aurora / Golden Nebula Wave
+      // 2. Subtle Aurora / Gilded Wave
       ctx.save();
-      const waveY = height * 0.6 + Math.sin(frame * 0.01) * 40 * dpr;
-      const nebulaGrad = ctx.createLinearGradient(0, waveY - 150 * dpr, 0, waveY + 200 * dpr);
+      const waveY = height * 0.6 + Math.sin(frame * 0.01) * 35 * dpr;
+      const nebulaGrad = ctx.createLinearGradient(0, waveY - 140 * dpr, 0, waveY + 180 * dpr);
       nebulaGrad.addColorStop(0, 'rgba(197, 160, 89, 0)');
-      nebulaGrad.addColorStop(0.5, 'rgba(197, 160, 89, 0.04)');
-      nebulaGrad.addColorStop(1, 'rgba(27, 59, 111, 0)');
+      nebulaGrad.addColorStop(0.5, isLight ? 'rgba(197, 160, 89, 0.06)' : 'rgba(197, 160, 89, 0.04)');
+      nebulaGrad.addColorStop(1, isLight ? 'rgba(230, 220, 200, 0)' : 'rgba(10, 10, 15, 0)');
 
       ctx.fillStyle = nebulaGrad;
       ctx.beginPath();
       ctx.moveTo(0, waveY);
       for (let x = 0; x <= width; x += 80 * dpr) {
-        const y = waveY + Math.sin((x * 0.002) + (frame * 0.012)) * 30 * dpr;
+        const y = waveY + Math.sin((x * 0.002) + (frame * 0.012)) * 25 * dpr;
         ctx.lineTo(x, y);
       }
       ctx.lineTo(width, height);
@@ -160,19 +177,18 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
       ctx.fill();
       ctx.restore();
 
-      // 3. Render Twinkling Stars
+      // 3. Render Twinkling Stars / Illuminations
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
         if (isPlaying) {
           s.phase += s.pulseSpeed;
         }
-        const currentAlpha = s.baseAlpha + Math.sin(s.phase) * 0.3;
+        const currentAlpha = s.baseAlpha + Math.sin(s.phase) * (isLight ? 0.15 : 0.3);
 
         ctx.save();
-        ctx.globalAlpha = Math.max(0.1, Math.min(1, currentAlpha));
+        ctx.globalAlpha = Math.max(0.05, Math.min(1, currentAlpha));
         ctx.fillStyle = s.color;
         ctx.beginPath();
-        // Slightly parallaxed star positions
         const px = s.x - mouseRef.current.x * 0.3;
         const py = s.y - mouseRef.current.y * 0.3;
         ctx.arc(px, py, s.size, 0, Math.PI * 2);
@@ -180,31 +196,32 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
         ctx.restore();
       }
 
-      // 4. Render Golden Ascending Embers
+      // 4. Render Ascending Golden Embers
       for (let i = 0; i < embers.length; i++) {
         const e = embers[i];
         if (isPlaying) {
-          e.x += e.vx + Math.sin(frame * 0.02 + i) * 0.3 * dpr;
+          e.x += e.vx + Math.sin(frame * 0.02 + i) * 0.25 * dpr;
           e.y += e.vy;
           e.alpha -= e.fadeSpeed;
 
-          // Recycle ember when faded or out of view
           if (e.y < -20 * dpr || e.alpha <= 0.02) {
             e.x = Math.random() * width;
             e.y = height + 10 * dpr;
-            e.alpha = Math.random() * 0.8 + 0.2;
-            e.vy = -(Math.random() * 0.8 + 0.3) * dpr;
+            e.alpha = Math.random() * (isLight ? 0.5 : 0.8) + 0.2;
+            e.vy = -(Math.random() * 0.7 + 0.3) * dpr;
           }
         }
 
         ctx.save();
         ctx.globalAlpha = Math.max(0, Math.min(1, e.alpha));
         ctx.fillStyle = e.color;
-        ctx.shadowColor = e.color;
-        ctx.shadowBlur = 8 * dpr;
+        if (!isLight) {
+          ctx.shadowColor = e.color;
+          ctx.shadowBlur = 6 * dpr;
+        }
         ctx.beginPath();
-        const px = e.x - mouseRef.current.x * 0.8;
-        const py = e.y - mouseRef.current.y * 0.8;
+        const px = e.x - mouseRef.current.x * 0.7;
+        const py = e.y - mouseRef.current.y * 0.7;
         ctx.arc(px, py, e.size, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
@@ -220,7 +237,7 @@ export const CinematicVideoCanvas: React.FC<CinematicVideoCanvasProps> = ({
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [ambientTheme, isPlaying]);
+  }, [ambientTheme, isPlaying, theme]);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

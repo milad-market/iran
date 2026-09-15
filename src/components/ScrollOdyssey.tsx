@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Language } from '../types';
+import { Language, Theme } from '../types';
 import { audioSynth } from '../utils/soundEffects';
-import { Sparkles, Volume2, VolumeX, FastForward, RotateCcw, Zap, Compass, Eye, ShieldAlert, ChevronDown } from 'lucide-react';
+import { Sparkles, Volume2, VolumeX, Zap, Compass, Eye, ChevronDown } from 'lucide-react';
 
 interface ScrollOdysseyProps {
   language: Language;
+  theme?: Theme;
 }
 
 interface Anomaly {
@@ -15,13 +16,13 @@ interface Anomaly {
   eraFa: string;
   bizarreEventEn: string;
   bizarreEventFa: string;
-  visualEffect: 'gate-fire' | 'anti-gravity' | 'astrolabe-vortex' | 'simurgh-ascent' | 'kaleidoscope';
-  bgGradient: string;
+  visualEffect: 'ziggurat-light' | 'gate-fire' | 'anti-gravity' | 'astrolabe-vortex' | 'simurgh-ascent' | 'kaleidoscope' | 'modern-spire';
   borderColor: string;
 }
 
-export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
+export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language, theme = 'dark' }) => {
   const isFa = language === 'fa';
+  const isLight = theme === 'light';
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -30,23 +31,32 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
   const [isSoundOn, setIsSoundOn] = useState<boolean>(false);
   const [gravityReversed, setGravityReversed] = useState<boolean>(false);
   const [anomalyTriggeredCount, setAnomalyTriggeredCount] = useState<number>(0);
-  const [isWarping, setIsWarping] = useState<boolean>(false);
 
   const stages: Anomaly[] = [
     {
       id: 0,
+      titleEn: 'Elamite Dawn: The Chogha Zanbil Ziggurat of Light',
+      titleFa: 'طلوع عیلام: تابش نور کیهانی از زیگورات چغازنبیل',
+      eraEn: '1250 BCE — Susa & Khuzestan Plateau',
+      eraFa: '۱۲۵۰ پیش از میلاد — شوش و فلات خوزستان',
+      bizarreEventEn: 'The concentric baked-brick terraces of Untash-Napirisha resonate with deep vibrational harmonics. Luminescent cuneiform inscriptions lift into the air as golden glyphs orbiting the sacred apex.',
+      bizarreEventFa: 'طبقات آجری زیگورات چغازنبیل با ارتعاشات ماورایی به طنین درمی‌آیند؛ خطوط میخی عیلامی به صورت نشانه‌های نورانی زرین از بدنه آجرها جدا شده و مانند حلقه‌های کیهانی بر فراز معبد شناور می‌شوند.',
+      visualEffect: 'ziggurat-light',
+      borderColor: '#c5a059',
+    },
+    {
+      id: 1,
       titleEn: 'Gate of All Nations: Awakening of the Lamassu',
-      titleFa: 'دروازه ملل: بیداری چشمان گاو بالدار سنگی',
+      titleFa: 'دروازه ملل: بیداری چشمان گاو بالدار سنگی هخامنشی',
       eraEn: '518 BCE — Persepolis Threshold',
       eraFa: '۵۱۸ پیش از میلاد — آستانه تخت جمشید',
       bizarreEventEn: 'The colossal 2,500-year-old stone guardians open their glowing electric-gold eyes. Cuneiform inscriptions detach from the bedrock and float upward as burning embers in the twilight sky.',
       bizarreEventFa: 'تندیس‌های غول‌پیکر سنگ خارا چشمان درخشان لاجوردی و طلایی خود را می‌گشایند؛ کتیبه‌های میخی از صخره‌ها جدا شده و مانند اخگرهای زرین و شناور در هوا به رقص درمی‌آیند.',
       visualEffect: 'gate-fire',
-      bgGradient: 'from-[#04132b] via-[#112038] to-[#1c2a43]',
       borderColor: '#c5a059',
     },
     {
-      id: 1,
+      id: 2,
       titleEn: 'Surena’s Chronostasis: Anti-Gravity Desert',
       titleFa: 'نبرد حران و انجماد زمان: جاذبه معکوس شن‌های روان',
       eraEn: '53 BCE — Parthian Expanse',
@@ -54,11 +64,10 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
       bizarreEventEn: 'Time abruptly freezes in mid-air. Roman spears hover suspended in space, and millions of golden sand grains begin falling UPWARD toward a dimensional aurora where phantom horse archers gallop across the clouds.',
       bizarreEventFa: 'زمان ناگهان منجمد می‌شود! نیزه‌های معلق در هوا بی‌حرکت می‌مانند، شن‌های کویر برخلاف جاذبه به سمت آسمان اوج می‌گیرند و سواران شبح‌گون پارتی در میان شفق‌های زرین می‌تازند.',
       visualEffect: 'anti-gravity',
-      bgGradient: 'from-[#1c1208] via-[#2d1b0c] to-[#0c1b33]',
       borderColor: '#c85a32',
     },
     {
-      id: 2,
+      id: 3,
       titleEn: 'Khayyam’s Cosmic Astrolabe Vortex',
       titleFa: 'گرداب کیهانی اسطرلاب و هندسه افلاک خیام',
       eraEn: '1079 CE — Celestial Observatory',
@@ -66,11 +75,10 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
       bizarreEventEn: 'A gigantic brass astrolabe unfolds into a 4D gyroscopic sphere. The 12 Persian zodiac constellations lock into laser alignment, raining down glowing algebraic equations and solar time coordinates like cosmic code.',
       bizarreEventFa: 'اسطرلاب غول‌آسای برنجی به یک کره چهاربُعدی چرخنده تبدیل می‌شود؛ دوازده صورت فلکی زودیاک در یک مدار لیزری همگام شده و بارانی از معادلات جبری و دقایق سال خورشیدی به زمین می‌بارد.',
       visualEffect: 'astrolabe-vortex',
-      bgGradient: 'from-[#031d38] via-[#0b294f] to-[#04132b]',
       borderColor: '#acc7ff',
     },
     {
-      id: 3,
+      id: 4,
       titleEn: 'The Simurgh’s Volcanic Ascent over Damavand',
       titleFa: 'پرواز سیمرغ آتشین و شفق‌های اساطیری بر فراز دماوند',
       eraEn: 'Ancient Mythos & Ferdowsi Era',
@@ -78,11 +86,10 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
       bizarreEventEn: 'Mount Damavand awakens, erupting not with ash, but with incandescent turquoise and crimson auroras. The mythical Simurgh emerges, showering celestial feathers that transform into living golden fireflies.',
       bizarreEventFa: 'قله سرفراز دماوند به غرش درمی‌آید؛ به جای گدازه، شفق‌های فیروزه‌ای و یاقوتی فوران می‌کنند و سیمرغ افسانه‌ای با بال‌هایی از پرتوهای رنگین برخاسته و پری از نور زرین به ارمغان می‌آورد.',
       visualEffect: 'simurgh-ascent',
-      bgGradient: 'from-[#1e072b] via-[#2f1042] to-[#04132b]',
       borderColor: '#e9c176',
     },
     {
-      id: 4,
+      id: 5,
       titleEn: 'The Infinite Sacred Peacock Kaleidoscope',
       titleFa: 'کلیدوسکوپ بی‌نهایت و طاووس نور مسجد شیخ لطف‌الله',
       eraEn: '1619 CE — Safavid Light Geometry',
@@ -90,8 +97,18 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
       bizarreEventEn: 'The intricate arabesque ceramic dome dissolves into an infinite quantum fractal kaleidoscope. Sunlight rays morph into a peacock of pure geometry that sings harmonic resonance frequencies.',
       bizarreEventFa: 'کاشی‌کاری‌های معرق گنبد ناگهان به کلیدوسکوپ بی‌نهایت تبدیل شده و در ابعاد هندسی تکثیر می‌شوند؛ پرتوهای نور به شکل طاووسی از نور خالص درمی‌آیند که نوای هارمونیک کیهان را می‌نوازد.',
       visualEffect: 'kaleidoscope',
-      bgGradient: 'from-[#042426] via-[#083b3d] to-[#04132b]',
       borderColor: '#38bdf8',
+    },
+    {
+      id: 6,
+      titleEn: 'Modern Spire of Freedom: Cyber-Calligraphy Gateway',
+      titleFa: 'دروازه نوین آزادی: تلاقی هندسه کهن و خطاطی نورانی',
+      eraEn: '1971 CE — Contemporary Monument',
+      eraFa: '۱۳۵۰ خورشیدی — شاهکار معماری پیوند سنت و مدرنیته',
+      bizarreEventEn: 'The 25,000 pristine Isfahan white marble blocks illuminate with flowing holographic Nastaliq calligraphy, linking ancient Persepolis arches with future horizons.',
+      bizarreEventFa: '۲۵ هزار قطعه سنگ مرمر سفید اصفهان با خطوط نستعلیق هولوگرافیک و زرین روشن می‌شوند و قوسی پیوسته از تبار هخامنشی و ساسانی تا افق‌های نوین آینده می‌گسترانند.',
+      visualEffect: 'modern-spire',
+      borderColor: '#ffd68a',
     },
   ];
 
@@ -116,7 +133,9 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
           
           if (stageIndex !== activeStage) {
             setActiveStage(stageIndex);
-            audioSynth.playChime(300 + stageIndex * 150);
+            if (isSoundOn) {
+              audioSynth.playChime(300 + stageIndex * 100);
+            }
           }
           ticking = false;
         });
@@ -126,9 +145,35 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeStage, stages.length]);
+  }, [activeStage, stages.length, isSoundOn]);
 
-  // Particle Canvas rendering bizarre visual effects
+  // Audio Toggle
+  const toggleSound = () => {
+    const next = !isSoundOn;
+    setIsSoundOn(next);
+    if (next) {
+      audioSynth.playChime(520);
+    }
+  };
+
+  // Instant Anomaly trigger
+  const triggerInstantAnomaly = () => {
+    setAnomalyTriggeredCount((prev) => prev + 1);
+    setGravityReversed((prev) => !prev);
+    if (isSoundOn) {
+      audioSynth.playWarp();
+    }
+  };
+
+  // Jump to stage
+  const jumpToStage = (index: number) => {
+    setActiveStage(index);
+    if (isSoundOn) {
+      audioSynth.playChime(350 + index * 90);
+    }
+  };
+
+  // Particle Engine
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -137,15 +182,16 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
 
     let animId: number;
     let width = (canvas.width = canvas.parentElement?.clientWidth || 800);
-    let height = (canvas.height = canvas.parentElement?.clientHeight || 600);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || 500);
 
-    const onResize = () => {
-      width = canvas.width = canvas.parentElement?.clientWidth || 800;
-      height = canvas.height = canvas.parentElement?.clientHeight || 600;
+    const handleResize = () => {
+      if (!canvas || !canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
     };
-    window.addEventListener('resize', onResize);
 
-    // Particle system
+    window.addEventListener('resize', handleResize);
+
     interface Particle {
       x: number;
       y: number;
@@ -154,12 +200,15 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
       size: number;
       color: string;
       alpha: number;
-      symbol?: string;
+      rot: number;
+      vRot: number;
     }
 
-    const cuneiformGlyphs = ['𐎠', '𐎡', '𐎢', '𐎣', '𐎭', '𐎴', '𐎶', '𐎸', '𐎹', '𐎼', '𐏁'];
     const particles: Particle[] = [];
     const count = 75;
+    const colors = isLight
+      ? ['#b8860b', '#c5a059', '#0284c7', '#c85a32', '#d4af37']
+      : ['#e9c176', '#ffd68a', '#38bdf8', '#ff7a45', '#ffffff'];
 
     for (let i = 0; i < count; i++) {
       particles.push({
@@ -167,77 +216,61 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 1.5,
         vy: (Math.random() - 0.5) * 1.5,
-        size: Math.random() * 3.5 + 1.5,
-        color: ['#c5a059', '#e9c176', '#acc7ff', '#c85a32', '#38bdf8'][Math.floor(Math.random() * 5)],
-        alpha: Math.random() * 0.8 + 0.2,
-        symbol: cuneiformGlyphs[Math.floor(Math.random() * cuneiformGlyphs.length)],
+        size: Math.random() * 3 + 1.2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: Math.random() * 0.7 + 0.3,
+        rot: Math.random() * Math.PI * 2,
+        vRot: (Math.random() - 0.5) * 0.04,
       });
     }
 
     let frame = 0;
+
     const render = () => {
       frame++;
       ctx.clearRect(0, 0, width, height);
 
-      // Background energy field
-      const current = stages[activeStage];
+      const stage = stages[activeStage];
+      const gravFactor = gravityReversed ? -1 : 1;
 
-      particles.forEach((p, idx) => {
-        // Apply stage-specific physics!
-        if (current.visualEffect === 'anti-gravity' || gravityReversed) {
-          p.y -= Math.abs(p.vy) * 2.5 + 1; // Falling UPWARDS!
-          if (p.y < 0) p.y = height;
-        } else if (current.visualEffect === 'gate-fire') {
-          p.y -= 1.2;
-          p.x += Math.sin((frame + idx) * 0.05) * 1.2;
-          if (p.y < 0) p.y = height;
-        } else if (current.visualEffect === 'astrolabe-vortex') {
-          // Orbital vortex motion around center
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.rot += p.vRot;
+
+        if (stage.visualEffect === 'anti-gravity') {
+          p.y -= 2 * gravFactor;
+          p.x += Math.sin(frame * 0.05 + i) * 0.5;
+        } else if (stage.visualEffect === 'astrolabe-vortex') {
           const cx = width / 2;
           const cy = height / 2;
           const dx = p.x - cx;
           const dy = p.y - cy;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const dist = Math.sqrt(dx * dx + dy * dy);
           const angle = Math.atan2(dy, dx) + 0.02;
-          p.x = cx + Math.cos(angle) * (dist + Math.sin(frame * 0.02) * 10);
-          p.y = cy + Math.sin(angle) * (dist + Math.sin(frame * 0.02) * 10);
-        } else if (current.visualEffect === 'simurgh-ascent') {
-          // Radiating wing waves
-          p.y -= 2;
-          p.x += Math.sin(frame * 0.08 + idx) * 2.5;
-          if (p.y < 0) {
-            p.y = height;
-            p.x = width / 2 + (Math.random() - 0.5) * 80;
-          }
+          p.x = cx + Math.cos(angle) * dist;
+          p.y = cy + Math.sin(angle) * dist;
         } else {
-          // Kaleidoscope drift
           p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0) p.x = width;
-          if (p.x > width) p.x = 0;
-          if (p.y < 0) p.y = height;
-          if (p.y > height) p.y = 0;
+          p.y += p.vy * gravFactor;
         }
 
-        // Draw particle or cuneiform glowing glyph
+        if (p.x < 0) p.x = width;
+        if (p.x > width) p.x = 0;
+        if (p.y < 0) p.y = height;
+        if (p.y > height) p.y = 0;
+
         ctx.save();
         ctx.globalAlpha = p.alpha;
-        if (idx % 3 === 0 && p.symbol) {
-          ctx.font = `${Math.floor(p.size * 5)}px serif`;
-          ctx.fillStyle = p.color;
+        ctx.fillStyle = p.color;
+        if (!isLight) {
           ctx.shadowColor = p.color;
-          ctx.shadowBlur = 10;
-          ctx.fillText(p.symbol, p.x, p.y);
-        } else {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.shadowColor = p.color;
-          ctx.shadowBlur = 12;
-          ctx.fill();
+          ctx.shadowBlur = 8;
         }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
-      });
+      }
 
       animId = requestAnimationFrame(render);
     };
@@ -246,60 +279,56 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
 
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [activeStage, gravityReversed, stages]);
-
-  const triggerInstantAnomaly = () => {
-    setIsWarping(true);
-    audioSynth.playAnomalyWarp();
-    setGravityReversed(!gravityReversed);
-    setAnomalyTriggeredCount((prev) => prev + 1);
-    setTimeout(() => setIsWarping(false), 1200);
-  };
-
-  const toggleSound = () => {
-    const newState = audioSynth.toggleMute();
-    setIsSoundOn(newState);
-  };
-
-  const jumpToStage = (index: number) => {
-    setActiveStage(index);
-    audioSynth.playChime(350 + index * 120);
-    if (containerRef.current) {
-      const targetY = (index / (stages.length - 1)) * (containerRef.current.offsetHeight - window.innerHeight);
-      window.scrollTo({
-        top: containerRef.current.offsetTop + targetY,
-        behavior: 'smooth',
-      });
-    }
-  };
+  }, [activeStage, gravityReversed, isLight]);
 
   const currentStage = stages[activeStage];
 
   return (
-    <div
-      ref={containerRef}
-      id="scroll-odyssey-container"
-      className={`relative min-h-[380vh] transition-all duration-700 ${
-        isWarping ? 'filter hue-rotate-180 invert' : ''
-      }`}
-    >
-      {/* Sticky Cinematic Viewport Screen */}
-      <div className="sticky top-20 h-[84vh] w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between py-4">
+    <div ref={containerRef} className="relative min-h-[480vh] w-full" id="scroll-odyssey-container">
+      {/* Sticky Cinematic Viewport Canvas */}
+      <div className="sticky top-20 h-[calc(100vh-5rem)] w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-between py-3 overflow-hidden">
         
-        {/* Top Floating Telemetry & Anomaly HUD */}
-        <div className="z-30 flex flex-wrap items-center justify-between gap-3 bg-[#04132b]/85 backdrop-blur-md p-3.5 rounded-xl border border-[#c5a059]/40 shadow-2xl">
-          
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#e9c176] animate-pulse" />
-              <span className="font-serif-title font-bold text-[#e9c176] text-sm sm:text-base">
-                {isFa ? 'سفر حماسی ناهنجاری‌های تاریخ' : 'Chronicle of Historical Anomalies'}
-              </span>
+        {/* Top Control HUD Bar */}
+        <div
+          className={`z-30 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl border backdrop-blur-md shadow-lg transition-colors ${
+            isLight
+              ? 'bg-white/95 border-[#c5a059]/40 text-[#152033]'
+              : 'bg-[#04132b]/95 border-[#c5a059]/40 text-[#d7e3ff]'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <div
+              className={`p-2 rounded-lg border ${
+                isLight ? 'bg-[#f8f6f0] border-[#c5a059]/40 text-[#875e18]' : 'bg-[#0c1b33] border-[#c5a059]/40 text-[#e9c176]'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 animate-spin" style={{ animationDuration: '8s' }} />
             </div>
-            <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[11px] bg-[#1b3b6f]/60 text-[#acc7ff] border border-[#acc7ff]/30 font-mono">
-              {isFa ? `فصل ${activeStage + 1} از ۵` : `Chapter ${activeStage + 1} of 5`}
+            <div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-bold uppercase tracking-wider ${
+                    isLight ? 'text-[#875e18]' : 'text-[#e9c176]'
+                  }`}
+                >
+                  {isFa ? 'سفر انیمیشنی در گذرگاه زمان' : 'Interactive Scroll Odyssey'}
+                </span>
+                <span className="animate-ping w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+              </div>
+              <p className={`text-[11px] font-mono hidden sm:block ${isLight ? 'text-[#57534e]' : 'text-[#9a8f80]'}`}>
+                {isFa ? 'برای ورق زدن ادوار تاریخ ایران اسکرول کنید' : 'Scroll down to travel across Iranian eras'}
+              </p>
+            </div>
+            <span
+              className={`hidden sm:inline-block px-2.5 py-0.5 rounded text-[11px] font-mono border ${
+                isLight
+                  ? 'bg-[#f4efe5] text-[#875e18] border-[#c5a059]/40'
+                  : 'bg-[#1b3b6f]/60 text-[#acc7ff] border-[#acc7ff]/30'
+              }`}
+            >
+              {isFa ? `فصل ${activeStage + 1} از ${stages.length}` : `Chapter ${activeStage + 1} of ${stages.length}`}
             </span>
           </div>
 
@@ -309,9 +338,11 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
             <button
               onClick={toggleSound}
               id="audio-synth-toggle-btn"
-              className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
                 isSoundOn
-                  ? 'bg-[#c5a059] text-[#04132b] font-bold shadow-[0_0_12px_rgba(197,160,89,0.5)]'
+                  ? 'bg-[#c5a059] text-white font-bold shadow-md'
+                  : isLight
+                  ? 'bg-[#f4efe5] text-[#57534e] border border-[#d8d0c4] hover:border-[#b8860b]'
                   : 'bg-[#112038] text-[#d1c5b4] border border-[#4e4639] hover:border-[#c5a059]'
               }`}
             >
@@ -323,7 +354,7 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
             <button
               onClick={triggerInstantAnomaly}
               id="instant-anomaly-btn"
-              className="px-3.5 py-1.5 rounded-md bg-gradient-to-r from-[#c85a32] to-[#c5a059] text-[#04132b] text-xs font-bold flex items-center gap-1.5 shadow-[0_0_15px_rgba(200,90,50,0.4)] hover:brightness-110 active:scale-95 transition-all"
+              className="px-3.5 py-1.5 rounded-md bg-gradient-to-r from-[#c85a32] to-[#c5a059] text-white text-xs font-bold flex items-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5 fill-current" />
               <span>{isFa ? 'رخداد عجیب آنی!' : 'Trigger Anomaly!'}</span>
@@ -331,9 +362,14 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
           </div>
         </div>
 
-        {/* Central Stage Visual Box (Canvas + 3D Holographic Artifacts) */}
-        <div className="relative flex-1 my-3 rounded-2xl overflow-hidden border border-[#c5a059]/40 bg-[#04132b] shadow-[0_0_40px_rgba(4,19,43,0.9)] flex items-center justify-center">
-          
+        {/* Central Stage Visual Box (Canvas + Animated Holographic Artifacts) */}
+        <div
+          className={`relative flex-1 my-3 rounded-2xl overflow-hidden border shadow-2xl flex items-center justify-center transition-colors ${
+            isLight
+              ? 'bg-[#faf7f0] border-[#c5a059]/40 shadow-[#c5a059]/15'
+              : 'bg-[#04132b] border-[#c5a059]/40 shadow-[0_0_40px_rgba(4,19,43,0.9)]'
+          }`}
+        >
           {/* Particle Animation Canvas */}
           <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
@@ -341,27 +377,53 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
           <div className="relative z-10 text-center max-w-2xl px-6 py-8 backdrop-blur-[2px]">
             
             {/* Stage Era Tag */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0c1b33]/90 border border-[#c5a059]/40 text-xs text-[#e9c176] font-bold mb-3 shadow-md">
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold mb-3 shadow-md ${
+                isLight
+                  ? 'bg-white/95 border-[#c5a059]/50 text-[#875e18]'
+                  : 'bg-[#0c1b33]/90 border-[#c5a059]/40 text-[#e9c176]'
+              }`}
+            >
               <Compass className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '10s' }} />
               <span>{isFa ? currentStage.eraFa : currentStage.eraEn}</span>
             </div>
 
             {/* Main Stage Headline */}
-            <h2 className="font-serif-title text-2xl sm:text-4xl font-extrabold text-[#d7e3ff] tracking-tight leading-tight mb-3">
+            <h2
+              className={`font-serif-title text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight mb-3 transition-colors ${
+                isLight ? 'text-[#152033]' : 'text-[#d7e3ff]'
+              }`}
+            >
               {isFa ? currentStage.titleFa : currentStage.titleEn}
             </h2>
 
             {/* The Bizarre Event Narrative Box */}
-            <div className="p-4 sm:p-5 rounded-xl bg-[#0c1b33]/90 border border-[#c5a059]/30 text-left rtl:text-right shadow-inner relative">
+            <div
+              className={`p-4 sm:p-5 rounded-xl border text-left rtl:text-right shadow-inner relative ${
+                isLight
+                  ? 'bg-white/95 border-[#c5a059]/40 text-[#152033]'
+                  : 'bg-[#0c1b33]/90 border-[#c5a059]/30 text-[#d7e3ff]'
+              }`}
+            >
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#c5a059]/20 border border-[#c5a059]/50 flex items-center justify-center shrink-0 text-[#e9c176]">
+                <div
+                  className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 ${
+                    isLight
+                      ? 'bg-[#f4efe5] border-[#c5a059] text-[#875e18]'
+                      : 'bg-[#c5a059]/20 border-[#c5a059]/50 text-[#e9c176]'
+                  }`}
+                >
                   <Eye className="w-4 h-4 animate-pulse" />
                 </div>
                 <div>
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#e9c176] block mb-1">
+                  <span
+                    className={`text-[11px] font-bold uppercase tracking-wider block mb-1 ${
+                      isLight ? 'text-[#875e18]' : 'text-[#e9c176]'
+                    }`}
+                  >
                     {isFa ? 'رخداد شگفت‌انگیز در این اسکرول:' : 'Anomaly Unfolding Upon Scroll:'}
                   </span>
-                  <p className="text-xs sm:text-sm text-[#d7e3ff] leading-relaxed">
+                  <p className={`text-xs sm:text-sm leading-relaxed ${isLight ? 'text-[#334155]' : 'text-[#d7e3ff]'}`}>
                     {isFa ? currentStage.bizarreEventFa : currentStage.bizarreEventEn}
                   </p>
                 </div>
@@ -369,7 +431,11 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
             </div>
 
             {/* Dynamic Stage Badge Indicator */}
-            <div className="mt-4 flex items-center justify-center gap-4 text-xs font-mono text-[#acc7ff]">
+            <div
+              className={`mt-4 flex items-center justify-center gap-4 text-xs font-mono ${
+                isLight ? 'text-[#57534e]' : 'text-[#acc7ff]'
+              }`}
+            >
               <span>
                 {isFa ? 'ضریب جاذبه: ' : 'Gravity: '}
                 {gravityReversed ? '-1.0G (معکوس)' : '1.0G (طبیعی)'}
@@ -383,31 +449,43 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
           </div>
 
           {/* Scroll Down Prompt Indicator */}
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none text-[#e9c176] text-xs font-medium animate-bounce">
+          <div
+            className={`absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none text-xs font-medium animate-bounce ${
+              isLight ? 'text-[#875e18]' : 'text-[#e9c176]'
+            }`}
+          >
             <span>{isFa ? 'برای رخداد بعدی به پایین اسکرول کنید' : 'Scroll Down for Next Anomaly'}</span>
             <ChevronDown className="w-4 h-4 mt-0.5" />
           </div>
         </div>
 
         {/* Bottom Stage Progress Timeline Scrub Bar */}
-        <div className="z-30 bg-[#04132b]/90 backdrop-blur-md p-3 rounded-xl border border-[#1c2a43] shadow-lg">
-          <div className="flex items-center justify-between gap-2">
+        <div
+          className={`z-30 p-3 rounded-xl border shadow-lg backdrop-blur-md transition-colors ${
+            isLight ? 'bg-white/95 border-[#e4ddcf]' : 'bg-[#04132b]/90 border-[#1c2a43]'
+          }`}
+        >
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
             {stages.map((stage, idx) => {
               const isActive = activeStage === idx;
               return (
                 <button
                   key={stage.id}
                   onClick={() => jumpToStage(idx)}
-                  className={`flex-1 py-2 px-2 rounded-lg text-center transition-all ${
+                  className={`flex-1 py-2 px-1 sm:px-2 rounded-lg text-center transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#1b3256] border border-[#e9c176] text-[#e9c176] shadow-[0_0_12px_rgba(197,160,89,0.3)] font-bold'
-                      : 'bg-[#0c1b33] text-[#9a8f80] hover:text-[#d7e3ff] border border-transparent'
+                      ? isLight
+                        ? 'bg-[#c5a059] text-white shadow-sm font-bold'
+                        : 'bg-[#1b3256] border border-[#e9c176] text-[#e9c176] shadow-[0_0_12px_rgba(197,160,89,0.3)] font-bold'
+                      : isLight
+                      ? 'bg-[#f4efe5] text-[#57534e] hover:text-[#152033]'
+                      : 'bg-[#0c1b33] text-[#9a8f80] hover:text-[#d7e3ff]'
                   }`}
                 >
                   <div className="text-[10px] font-mono uppercase">
                     {isFa ? `گام ${idx + 1}` : `Stage ${idx + 1}`}
                   </div>
-                  <div className="text-xs truncate hidden md:block">
+                  <div className="text-xs truncate hidden lg:block">
                     {isFa ? stage.titleFa.split(':')[0] : stage.titleEn.split(':')[0]}
                   </div>
                 </button>
@@ -416,7 +494,7 @@ export const ScrollOdyssey: React.FC<ScrollOdysseyProps> = ({ language }) => {
           </div>
 
           {/* Linear Progress Bar */}
-          <div className="w-full bg-[#112038] h-1.5 rounded-full overflow-hidden mt-2.5">
+          <div className={`w-full h-1.5 rounded-full overflow-hidden mt-2.5 ${isLight ? 'bg-[#e4ddcf]' : 'bg-[#112038]'}`}>
             <div
               className="h-full bg-gradient-to-r from-[#c85a32] via-[#c5a059] to-[#38bdf8] transition-all duration-300"
               style={{ width: `${Math.round(scrollProgress * 100)}%` }}

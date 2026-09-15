@@ -1,6 +1,10 @@
 export type Language = 'en' | 'fa';
 
+export type Theme = 'dark' | 'light';
+
 export type HistoricalCategory = 'architectural' | 'literary' | 'philosophy' | 'statecraft' | 'culture';
+
+export type EraCategory = 'pre-islamic' | 'islamic-golden' | 'medieval' | 'modern';
 
 export interface ProminentRuler {
   nameEn: string;
@@ -22,6 +26,8 @@ export interface Dynasty {
   startYear: number; // For chronological sorting (-550 = 550 BCE)
   endYear: number;
   emblem: string;
+  eraCategory?: EraCategory;
+  category?: EraCategory;
   capitalEn: string;
   capitalFa: string;
   territorySqKm: string;

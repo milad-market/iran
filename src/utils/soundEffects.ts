@@ -88,6 +88,10 @@ class AudioSynthManager {
     }
   }
 
+  public playWarp() {
+    this.playAnomalyWarp();
+  }
+
   // Ambient Persian Tanbur / Ney drone
   public startAmbientDrone() {
     if (this.isMuted || this.isDronePlaying) return;

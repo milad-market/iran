@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { Language } from '../types';
-import { Sparkles, Palette, RotateCw, Copy, Check, Download } from 'lucide-react';
+import { Language, Theme } from '../types';
+import { Sparkles } from 'lucide-react';
 
 interface TessellationGeneratorProps {
   language: Language;
+  theme?: Theme;
 }
 
-export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ language }) => {
+export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ language, theme = 'dark' }) => {
   const isFa = language === 'fa';
+  const isLight = theme === 'light';
+
   const [folds, setFolds] = useState<number>(8);
   const [layers, setLayers] = useState<number>(3);
   const [colorTheme, setColorTheme] = useState<'lapis' | 'turquoise' | 'terracotta' | 'emerald'>('lapis');
-  const [copied, setCopied] = useState<boolean>(false);
 
   // Themes
   const themes = {
@@ -21,15 +23,15 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
       primary: '#c5a059',
       secondary: '#1b3b6f',
       accent: '#e9c176',
-      bg: '#04132b',
+      bg: isLight ? '#f4efe5' : '#04132b',
     },
     turquoise: {
       nameEn: 'Isfahan Turquoise',
       nameFa: 'فیروزه اصفهان',
-      primary: '#38bdf8',
+      primary: '#0284c7',
       secondary: '#0369a1',
-      accent: '#bae6fd',
-      bg: '#082f49',
+      accent: '#38bdf8',
+      bg: isLight ? '#e0f2fe' : '#082f49',
     },
     terracotta: {
       nameEn: 'Kashan Terracotta & Amber',
@@ -37,15 +39,15 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
       primary: '#c85a32',
       secondary: '#7c2d12',
       accent: '#ffb59c',
-      bg: '#271008',
+      bg: isLight ? '#fef3c7' : '#271008',
     },
     emerald: {
       nameEn: 'Imperial Emerald',
       nameFa: 'زمرد شاهانه',
-      primary: '#10b981',
+      primary: '#059669',
       secondary: '#064e3b',
-      accent: '#6ee7b7',
-      bg: '#022c22',
+      accent: '#34d399',
+      bg: isLight ? '#d1fae5' : '#022c22',
     },
   };
 
@@ -58,127 +60,131 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
     const elements: React.ReactNode[] = [];
 
     // Outer concentric rings
-    elements.push(
-      <circle
-        key="outer-ring"
-        cx={center}
-        cy={center}
-        r={center - 12}
-        stroke={currentTheme.primary}
-        strokeWidth="1.5"
-        strokeDasharray="4 3"
-        fill="none"
-        opacity="0.8"
-      />,
-      <circle
-        key="inner-ring"
-        cx={center}
-        cy={center}
-        r={center - 24}
-        stroke={currentTheme.primary}
-        strokeWidth="1"
-        fill="none"
-        opacity="0.6"
-      />
-    );
+    for (let l = 1; l <= layers; l++) {
+      const radius = (size * 0.42 * l) / layers;
+      elements.push(
+        <circle
+          key={`ring-${l}`}
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="none"
+          stroke={l % 2 === 0 ? currentTheme.secondary : currentTheme.primary}
+          strokeWidth="1.2"
+          opacity={0.8}
+          strokeDasharray={l === layers ? '3 3' : undefined}
+        />
+      );
 
-    // Multi-layer Star Polygons (Girih & Shamseh)
-    for (let layer = 1; layer <= layers; layer++) {
-      const radius = (center - 36) * (layer / layers);
-      const innerRadius = radius * 0.58;
+      // Star Polygon Rays
       const points: string[] = [];
+      const innerRadius = radius * 0.58;
+      const angleStep = (Math.PI * 2) / (folds * 2);
 
-      const totalVertices = folds * 2;
-      for (let i = 0; i < totalVertices; i++) {
-        const angle = (i * Math.PI) / folds - Math.PI / 2;
+      for (let i = 0; i < folds * 2; i++) {
         const r = i % 2 === 0 ? radius : innerRadius;
-        const x = center + r * Math.cos(angle);
-        const y = center + r * Math.sin(angle);
+        const a = i * angleStep - Math.PI / 2;
+        const x = center + Math.cos(a) * r;
+        const y = center + Math.sin(a) * r;
         points.push(`${x},${y}`);
       }
 
       elements.push(
         <polygon
-          key={`star-poly-${layer}`}
+          key={`star-${l}`}
           points={points.join(' ')}
-          stroke={layer === layers ? currentTheme.primary : currentTheme.accent}
-          strokeWidth="1.5"
-          fill={layer === 1 ? currentTheme.secondary : 'none'}
-          fillOpacity="0.4"
-          className="transition-all duration-500"
+          fill="none"
+          stroke={l % 2 === 0 ? currentTheme.primary : currentTheme.accent}
+          strokeWidth="1.6"
+          opacity={0.9}
         />
       );
 
-      // Connecting intersection cords
-      for (let j = 0; j < folds; j++) {
-        const a1 = (j * 2 * Math.PI) / folds - Math.PI / 2;
-        const x1 = center + radius * Math.cos(a1);
-        const y1 = center + radius * Math.sin(a1);
-
-        const a2 = ((j + Math.floor(folds / 2)) * 2 * Math.PI) / folds - Math.PI / 2;
-        const x2 = center + radius * Math.cos(a2);
-        const y2 = center + radius * Math.sin(a2);
-
+      // Radial connective lines
+      for (let f = 0; f < folds; f++) {
+        const a = (f * Math.PI * 2) / folds;
+        const x2 = center + Math.cos(a) * radius;
+        const y2 = center + Math.sin(a) * radius;
         elements.push(
           <line
-            key={`cord-${layer}-${j}`}
-            x1={x1}
-            y1={y1}
+            key={`spoke-${l}-${f}`}
+            x1={center}
+            y1={center}
             x2={x2}
             y2={y2}
             stroke={currentTheme.primary}
-            strokeWidth="0.75"
-            opacity="0.35"
+            strokeWidth="0.8"
+            opacity={0.4}
           />
         );
       }
     }
 
-    // Center focal rosette
+    // Core star rosette medallion
     elements.push(
       <circle
-        key="center-sun"
+        key="core"
         cx={center}
         cy={center}
-        r={14}
+        r={18}
         fill={currentTheme.primary}
         stroke={currentTheme.accent}
         strokeWidth="2"
+      />
+    );
+    elements.push(
+      <circle
+        key="core-inner"
+        cx={center}
+        cy={center}
+        r={7}
+        fill={currentTheme.bg}
       />
     );
 
     return elements;
   };
 
-  const copySvg = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
-    <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" id="geometry-section">
+    <section className="py-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8" id="geometry-section">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-[#e9c176] text-xs font-semibold tracking-wider uppercase mb-1">
-            <Sparkles className="w-4 h-4" />
-            <span>{isFa ? 'استودیوی ریاضیات و هندسه نقوش اسلامی' : 'Sacred Geometry & Girih Studio'}</span>
-          </div>
-          <h2 className="font-serif-title text-2xl sm:text-3xl font-bold text-[#d7e3ff]">
-            {isFa ? 'کارگاه شمسه و گره‌چینی ایرانی' : 'The Persian Shamseh & Girih Tiling Studio'}
-          </h2>
+      <div className="text-center mb-8">
+        <div
+          className={`inline-flex items-center gap-2 text-xs font-semibold tracking-wider uppercase mb-1 ${
+            isLight ? 'text-[#875e18]' : 'text-[#e9c176]'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>{isFa ? 'کارگاه هندسه مقدس و گره‌چینی ایرانی' : 'Sacred Geometry & Girih Studio'}</span>
         </div>
-        <p className="text-sm text-[#d1c5b4] max-w-md">
+        <h2
+          className={`font-serif-title text-2xl sm:text-3xl font-bold mb-2 ${
+            isLight ? 'text-[#152033]' : 'text-[#d7e3ff]'
+          }`}
+        >
+          {isFa ? 'طراحی زنده شمسه‌ها و تقارن ریاضی کاشی‌کاری' : 'Live Interactive Girih Tiling Engine'}
+        </h2>
+        <p className={`text-sm max-w-xl mx-auto ${isLight ? 'text-[#57534e]' : 'text-[#d1c5b4]'}`}>
           {isFa
-            ? 'الگوهای شمسه (خورشید نمادین) و تقارن‌های گره‌چینی که توسط ریاضی‌دانان ایرانی سده‌ها پیش از بلورشناسی غرب خلق شدند.'
-            : 'Interactive generator based on the mathematical Girih tile discoveries of medieval Persian geometers.'}
+            ? 'با تغییر متغیرهای تقارن، لایه‌ها و لعاب‌های سنتی، نظم ریاضی شگفت‌انگیز معماری اصفهان، یزد و مراغه را خلق کنید.'
+            : 'Manipulate rotational symmetry, fold order, and mineral glaze palettes inspired by Isfahan and Maragheh.'}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#112038] border border-[#c5a059]/40 rounded-xl p-6 sm:p-8 shadow-2xl">
-        
+      {/* Main Studio Card */}
+      <div
+        className={`border rounded-2xl p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 shadow-2xl transition-colors ${
+          isLight
+            ? 'bg-white/95 border-[#c5a059]/40 shadow-[#c5a059]/10'
+            : 'bg-[#112038]/90 backdrop-blur-sm border-[#c5a059]/30 shadow-[#000e25]/60'
+        }`}
+      >
         {/* Geometry Canvas Preview (6 cols) */}
-        <div className="lg:col-span-6 flex flex-col items-center justify-center p-6 rounded-lg bg-[#04132b] border border-[#1c2a43] relative overflow-hidden">
+        <div
+          className={`lg:col-span-6 flex flex-col items-center justify-center p-6 rounded-xl border relative overflow-hidden transition-colors ${
+            isLight ? 'bg-[#faf8f2] border-[#e4ddcf]' : 'bg-[#04132b] border-[#1c2a43]'
+          }`}
+        >
           <div className="w-[320px] h-[320px] flex items-center justify-center relative">
             <svg
               viewBox="0 0 320 320"
@@ -188,7 +194,11 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
             </svg>
           </div>
 
-          <div className="mt-4 text-xs text-[#acc7ff] flex items-center gap-2 font-mono">
+          <div
+            className={`mt-4 text-xs flex items-center gap-2 font-mono ${
+              isLight ? 'text-[#57534e]' : 'text-[#acc7ff]'
+            }`}
+          >
             <span>{folds}-Point Star</span>
             <span>•</span>
             <span>{layers} Nested Tiers</span>
@@ -203,19 +213,23 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
           {/* Fold Symmetry control */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#e9c176]">
+              <label className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#875e18]' : 'text-[#e9c176]'}`}>
                 {isFa ? 'تعداد پرهای شمسه (مرتبه تقارن)' : 'Star Symmetry (Folds / Rays)'}
               </label>
-              <span className="text-sm font-mono font-bold text-[#d7e3ff]">{folds}-fold</span>
+              <span className={`text-sm font-mono font-bold ${isLight ? 'text-[#152033]' : 'text-[#d7e3ff]'}`}>
+                {folds}-fold
+              </span>
             </div>
             <div className="grid grid-cols-4 gap-2">
               {[6, 8, 10, 12].map((f) => (
                 <button
                   key={f}
                   onClick={() => setFolds(f)}
-                  className={`py-2 text-xs font-bold rounded border transition-colors ${
+                  className={`py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                     folds === f
-                      ? 'bg-[#c5a059] text-[#04132b] border-[#ffd68a]'
+                      ? 'bg-[#c5a059] text-white border-[#b8860b] shadow-sm'
+                      : isLight
+                      ? 'bg-white text-[#57534e] border-[#d8d0c4] hover:border-[#b8860b]'
                       : 'bg-[#0c1b33] text-[#d1c5b4] border-[#1c2a43] hover:border-[#c5a059]'
                   }`}
                 >
@@ -228,10 +242,12 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
           {/* Concentric Layers control */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#e9c176]">
+              <label className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-[#875e18]' : 'text-[#e9c176]'}`}>
                 {isFa ? 'لایه‌های تودرتوی گره‌چینی' : 'Concentric Girih Tiers'}
               </label>
-              <span className="text-sm font-mono font-bold text-[#d7e3ff]">{layers}</span>
+              <span className={`text-sm font-mono font-bold ${isLight ? 'text-[#152033]' : 'text-[#d7e3ff]'}`}>
+                {layers}
+              </span>
             </div>
             <input
               type="range"
@@ -240,13 +256,13 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
               step="1"
               value={layers}
               onChange={(e) => setLayers(Number(e.target.value))}
-              className="w-full accent-[#c5a059] bg-[#0c1b33] h-2 rounded cursor-pointer"
+              className="w-full accent-[#c5a059] h-2 rounded cursor-pointer"
             />
           </div>
 
           {/* Palette Themes */}
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-[#e9c176] block mb-2">
+            <label className={`text-xs font-bold uppercase tracking-wider block mb-2 ${isLight ? 'text-[#875e18]' : 'text-[#e9c176]'}`}>
               {isFa ? 'پالت رنگ سنتی ایرانی' : 'Traditional Architectural Glaze Palette'}
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -257,9 +273,13 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
                   <button
                     key={tKey}
                     onClick={() => setColorTheme(tKey)}
-                    className={`p-2.5 rounded border text-left rtl:text-right text-xs transition-colors flex items-center gap-2 ${
+                    className={`p-2.5 rounded-lg border text-left rtl:text-right text-xs transition-all flex items-center gap-2 cursor-pointer ${
                       isSelected
-                        ? 'bg-[#1c2a43] border-[#e9c176] text-[#e9c176] font-bold'
+                        ? isLight
+                          ? 'bg-[#fdfbf7] border-[#b8860b] text-[#875e18] font-bold shadow-sm'
+                          : 'bg-[#1c2a43] border-[#e9c176] text-[#e9c176] font-bold'
+                        : isLight
+                        ? 'bg-white border-[#e4ddcf] text-[#57534e] hover:border-[#c5a059]'
                         : 'bg-[#0c1b33] border-[#1c2a43] text-[#d1c5b4] hover:border-[#c5a059]/40'
                     }`}
                   >
@@ -275,8 +295,14 @@ export const TessellationGenerator: React.FC<TessellationGeneratorProps> = ({ la
           </div>
 
           {/* Historical Fact box */}
-          <div className="p-3.5 rounded-lg bg-[#0c1b33] border border-[#1c2a43] text-xs text-[#d1c5b4] leading-relaxed">
-            <span className="font-bold text-[#e9c176] block mb-1">
+          <div
+            className={`p-3.5 rounded-xl border text-xs leading-relaxed ${
+              isLight
+                ? 'bg-[#faf8f2] border-[#e4ddcf] text-[#475569]'
+                : 'bg-[#0c1b33] border-[#1c2a43] text-[#d1c5b4]'
+            }`}
+          >
+            <span className={`font-bold block mb-1 ${isLight ? 'text-[#875e18]' : 'text-[#e9c176]'}`}>
               {isFa ? 'راز ریاضی گره‌چینی: ' : 'The Girih Discovery: '}
             </span>
             {isFa
