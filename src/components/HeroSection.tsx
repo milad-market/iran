@@ -7,9 +7,9 @@ interface HeroSectionProps {
   language: Language;
   onExploreTimeline: () => void;
   onExploreMap: () => void;
-  onExploreOdyssey: () => void;
   onExploreDynasties: () => void;
   onOpenCharter?: () => void;
+  onOpenEncyclopedia?: () => void;
   onOpenAi?: () => void;
   onOpenTheater?: () => void;
   theme?: Theme;
@@ -19,9 +19,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   language,
   onExploreTimeline,
   onExploreMap,
-  onExploreOdyssey,
   onExploreDynasties,
   onOpenCharter,
+  onOpenEncyclopedia,
   onOpenAi,
   onOpenTheater,
   theme = 'dark',
@@ -169,17 +169,36 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             transition={{ duration: 0.7, delay: 0.25, ease: 'easeOut' }}
             className="mt-8 flex flex-wrap items-center justify-center gap-3"
           >
-            {/* Scroll Odyssey Button */}
-            <motion.button
-              whileHover={{ scale: 1.04, boxShadow: '0 0 25px rgba(197,160,89,0.5)' }}
-              whileTap={{ scale: 0.97 }}
-              onClick={onExploreOdyssey}
-              id="hero-explore-odyssey-btn"
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-[#c5a059] via-[#e9c176] to-[#c5a059] text-black font-black text-sm tracking-wide shadow-md transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 fill-black" />
-              <span>{isFa ? '✦ سفر شگفت‌انگیز با اسکرول' : '✦ Launch Scroll Odyssey'}</span>
-            </motion.button>
+            {/* Primary Cyrus Charter 3D Experience Button */}
+            {onOpenCharter && (
+              <motion.button
+                whileHover={{ scale: 1.04, boxShadow: '0 0 30px rgba(197,160,89,0.5)' }}
+                whileTap={{ scale: 0.97 }}
+                onClick={onOpenCharter}
+                id="hero-explore-charter-btn"
+                className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-[#c5a059] via-[#ffd68a] to-[#c5a059] text-black font-black text-sm tracking-wide shadow-lg shadow-[#c5a059]/30 transition-all flex items-center gap-2.5 cursor-pointer"
+              >
+                <Landmark className="w-5 h-5 fill-black" />
+                <span>{isFa ? '✦ منشور کوروش با گرافیک سه‌بعدی و متون معلق' : '✦ Cyrus Cylinder 3D Experience & Floating Decrees'}</span>
+              </motion.button>
+            )}
+
+            {/* Encyclopedia Button */}
+            {onOpenEncyclopedia && (
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={onOpenEncyclopedia}
+                className={`px-5 py-3 rounded-xl border font-bold text-sm tracking-wide transition-all flex items-center gap-2 cursor-pointer ${
+                  isLight
+                    ? 'bg-white border-[#c5a059] text-[#875e18] hover:bg-[#faf6ee]'
+                    : 'bg-[#14141d] border-[#c5a059]/50 text-[#ffd68a] hover:bg-[#1a1a26]'
+                }`}
+              >
+                <BookOpen className="w-4 h-4 text-[#c5a059]" />
+                <span>{isFa ? 'دانشنامه و مقالات جامع' : 'Encyclopedia & Articles'}</span>
+              </motion.button>
+            )}
 
             {/* Cinematic Animated Video Button */}
             {onOpenTheater && (
@@ -187,10 +206,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={onOpenTheater}
-                className={`px-5 py-3 rounded-xl border font-bold text-sm tracking-wide transition-all flex items-center gap-2 cursor-pointer ${
+                className={`px-5 py-3 rounded-xl border font-semibold text-sm tracking-wide transition-all flex items-center gap-2 cursor-pointer ${
                   isLight
-                    ? 'bg-white border-[#c5a059] text-[#875e18] hover:bg-[#faf6ee]'
-                    : 'bg-[#14141d] border-[#c5a059]/50 text-[#ffd68a] hover:bg-[#1a1a26]'
+                    ? 'bg-white border-[#d8d0c4] text-stone-800 hover:border-[#c5a059]'
+                    : 'bg-[#14141d] border-[#2a2a38] text-stone-300 hover:border-[#c5a059]'
                 }`}
               >
                 <Film className="w-4 h-4 text-[#c5a059]" />

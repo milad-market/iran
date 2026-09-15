@@ -1,6 +1,6 @@
 {
-  "name": "Imperial Heritage - Iran",
-  "description": "An illuminated digital archive and interactive exploration of Persian history, dynasties, monuments, and cultural heritage.",
+  "name": "میراث جاودان شاهنشاهی ایران و منشور کوروش بزرگ",
+  "description": "آرشیو دیجیتال تاریخ و فرهنگ ایران، منشور زرین حقوق بشر کوروش بزرگ با نمایه سه‌بعدی و متون معلق، سلسله‌ها و یادمان‌های تاریخی.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

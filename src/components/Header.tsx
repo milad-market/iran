@@ -34,12 +34,13 @@ export const Header: React.FC<HeaderProps> = ({
   const isLight = theme === 'light';
 
   const navItems = [
-    { id: 'odyssey', labelEn: 'Scroll Odyssey ✦', labelFa: 'سفر شگفت‌انگیز ✦', isSpecial: true },
-    { id: 'theater', labelEn: 'Animated Cinema 🎬', labelFa: 'سینمای انیمیشن 🎬' },
+    { id: 'charter', labelEn: 'Cyrus Charter ✦', labelFa: 'منشور کوروش ✦', isSpecial: true },
     { id: 'dynasties', labelEn: 'Dynasties', labelFa: 'سلسله‌ها و شاهان' },
+    { id: 'encyclopedia', labelEn: 'Encyclopedia', labelFa: 'دانشنامه و مقالات' },
     { id: 'timeline', labelEn: 'Chronology', labelFa: 'گاه‌شمار وقایع' },
     { id: 'map', labelEn: 'Heritage Map', labelFa: 'نقشه آثار' },
-    { id: 'artifacts', labelEn: 'Wisdom & Artifacts', labelFa: 'گنجینه و منشورها' },
+    { id: 'theater', labelEn: 'Animated Cinema 🎬', labelFa: 'سینمای تاریخ 🎬' },
+    { id: 'artifacts', labelEn: 'Wisdom & Artifacts', labelFa: 'گنجینه آثار' },
     { id: 'geometry', labelEn: 'Sacred Geometry', labelFa: 'هندسه کاشی' },
   ];
 
